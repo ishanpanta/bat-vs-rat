@@ -1,0 +1,10 @@
+name: bat-vs-rat
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - ipykernel
+  - jupyter
+  - numpy
+  - pandas
+prefix: /opt/anaconda3/envs/bat-vs-rat
