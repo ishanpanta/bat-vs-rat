@@ -16,7 +16,7 @@ def check_few_values(df, name):
 
 def missing_values_find(df, col):
     """Check Missing Values"""
-    print(f"\n--- Column: {col} ---")
+    print(f"\nColumn: {col}")
     print("dtype:", df[col].dtype)
     missing = df[col].isna().sum()
     print("missing:", missing, f"({missing/len(df):.1%})")
