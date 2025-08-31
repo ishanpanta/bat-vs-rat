@@ -9,7 +9,8 @@ def read_data(path):
     return pd.read_csv(path, encoding="utf-8-sig")
 
 
-def check_few_values(df):
+def check_few_values(df, name):
+    print(f"\nChecking value for {name}:")
     print(df.head())
 
 
