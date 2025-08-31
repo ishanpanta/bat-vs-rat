@@ -7,3 +7,9 @@ import pandas as pd
 def read_data(path):
     """Read csv data with encoding"""
     return pd.read_csv(path, encoding="utf-8-sig")
+
+
+def missing_values_find(df, name):
+    """Check Missing Values"""
+    print(f"\nMissing values in {name}:")
+    print(df.isna().sum())
