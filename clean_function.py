@@ -9,7 +9,13 @@ def read_data(path):
     return pd.read_csv(path, encoding="utf-8-sig")
 
 
-def missing_values_find(df, name):
+def check_few_values(df):
+    print(df.head())
+
+
+def missing_values_find(df, col):
     """Check Missing Values"""
-    print(f"\nMissing values in {name}:")
-    print(df.isna().sum())
+    print(f"\n--- Column: {col} ---")
+    print("dtype:", df[col].dtype)
+    missing = df[col].isna().sum()
+    print("missing:", missing, f"({missing/len(df):.1%})")
