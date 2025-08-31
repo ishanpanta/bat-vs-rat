@@ -14,7 +14,7 @@ def check_few_values(df, name):
     print(df.head())
 
 
-def missing_values_find(df, col):
+def missing_values_and_datatype_find(df, col):
     """Check Missing Values"""
     print(f"\nColumn: {col}")
     print("dtype:", df[col].dtype)
