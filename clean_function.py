@@ -16,7 +16,22 @@ def check_few_values(df, name):
 
 def missing_values_and_datatype_find(df, col):
     """Check Missing Values"""
-    print(f"\nColumn: {col}")
-    print("dtype:", df[col].dtype)
     missing = df[col].isna().sum()
-    print("missing:", missing, f"({missing/len(df):.1%})")
+    print(f"Column: {col},", "dtype:", df[col].dtype, "missing:", missing,
+          f"({missing/len(df):.1%})")
+    
+
+def detect_and_convert_datetime(df):
+    """This checks the object datatype and converts it to date and 
+    time if possible."""
+    
+    for col in df.columns:
+        # Only check for object datatypes.
+        if df[col].dtype == "object":
+            try:
+                df[col] = pd.to_datetime(df[col], errors="raise")
+                print(f"Converted column '{col}' to datetime")
+            except Exception:
+                # If conversion fails, leave it as object.
+                pass
+    return df
