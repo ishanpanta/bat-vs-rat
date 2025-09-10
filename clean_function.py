@@ -85,7 +85,7 @@ def handle_missing_values(df, name="Dataset"):
     - Numeric: fill with median
     - Categorical (object): fill with mode
     """
-    print(f"\nHandling dublicate data in: {name}")
+    print(f"\nHandling missing data in: {name}")
     missing_data_count = 0
     for col in df.columns:
         if df[col].isna().sum() > 0:  # only if missing
@@ -99,16 +99,33 @@ def handle_missing_values(df, name="Dataset"):
                 df[col] = df[col].fillna(mode_value)
                 print(f"Missing in {col} filled with mode = {mode_value}")
     if missing_data_count < 1:
-        print(f"No missing data in {name}") 
+        print(f"No missing data in {name}")
     return df
 
 
-def detect_and_handle_duplicate_data(df):
+def show_duplicate_data(df, name):
+    """
+    Detect and display duplicate rows in the dataset.
+    """
+
+    print(f"\nFinding duplicate data in: {name}")
+    duplicates = df[df.duplicated(keep=False)]  # keep=False → mark all
+    # duplicates, not just later ones
+    if len(duplicates) > 0:
+        print(f"Found {len(duplicates)} duplicate rows:\n")
+        print(duplicates)
+    else:
+        print("No duplicates found")
+    return duplicates
+
+
+def handle_duplicates(df, name):
     """
     Detect and remove duplicate rows in the dataset.
     - First shows how many duplicates exist
     - Then removes them
     """
+    print(f"\nHandling duplicate data in: {name}")
     # Count duplicates
     duplicate_count = df.duplicated().sum()
     print(f"Found {duplicate_count} duplicate rows")
