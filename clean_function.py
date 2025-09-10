@@ -75,5 +75,24 @@ def datatype_conversion_summary(df, name="Dataset"):
     print(f"\n Summary of {name}:")
     # Counts total of each datatype.
     print(df.dtypes.value_counts())
-    print("\nDetailed Viwe:")
+    print("\nDetailed View:")
     print(df.dtypes)
+
+
+def handle_missing_values(df):
+    """
+    Handle missing values column by column.
+    - Numeric: fill with median
+    - Categorical (object): fill with mode
+    """
+    for col in df.columns:
+        if df[col].isna().sum() > 0:  # only if missing
+            if df[col].dtype in ["int64", "float64"]:
+                median_value = df[col].median()
+                df[col] = df[col].fillna(median_value)
+                print(f"🟡 Missing in {col} filled with median = {median_value}")
+            else:
+                mode_value = df[col].mode()[0]
+                df[col] = df[col].fillna(mode_value)
+                print(f"🟡 Missing in {col} filled with mode = {mode_value}")
+    return df
