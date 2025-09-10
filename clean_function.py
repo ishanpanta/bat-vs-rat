@@ -80,19 +80,21 @@ def datatype_conversion_summary(df, name="Dataset"):
 
 
 def handle_missing_values(df):
-    """
-    Handle missing values column by column.
-    - Numeric: fill with median
-    - Categorical (object): fill with mode
-    """
+    handled = False  # track if anything was filled
     for col in df.columns:
-        if df[col].isna().sum() > 0:  # only if missing
-            if df[col].dtype in ["int64", "float64"]:
+        missing_count = df[col].isna().sum()
+        if missing_count > 0:
+            handled = True
+            if pd.api.types.is_numeric_dtype(df[col]):
                 median_value = df[col].median()
                 df[col] = df[col].fillna(median_value)
-                print(f"🟡 Missing in {col} filled with median = {median_value}")
+                print(f"Missing in {col} filled with median = {median_value}")
             else:
                 mode_value = df[col].mode()[0]
                 df[col] = df[col].fillna(mode_value)
-                print(f"🟡 Missing in {col} filled with mode = {mode_value}")
+                print(f"Missing in {col} filled with mode = {mode_value}")
+    if not handled:
+        print("No missing values found.")
+    else:
+        print("All missing values handled.")
     return df
