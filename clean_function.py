@@ -79,13 +79,18 @@ def datatype_conversion_summary(df, name="Dataset"):
     print(df.dtypes)
 
 
-def handle_missing_values(df):
-    handled = False  # track if anything was filled
+def handle_missing_values(df, name="Dataset"):
+    """
+    Handle missing values column by column.
+    - Numeric: fill with median
+    - Categorical (object): fill with mode
+    """
+    print(f"\nHandling dublicate data in: {name}")
+    missing_data_count = 0
     for col in df.columns:
-        missing_count = df[col].isna().sum()
-        if missing_count > 0:
-            handled = True
-            if pd.api.types.is_numeric_dtype(df[col]):
+        if df[col].isna().sum() > 0:  # only if missing
+            missing_data_count = missing_data_count + 1
+            if df[col].dtype in ["int64", "float64"]:
                 median_value = df[col].median()
                 df[col] = df[col].fillna(median_value)
                 print(f"Missing in {col} filled with median = {median_value}")
@@ -93,8 +98,25 @@ def handle_missing_values(df):
                 mode_value = df[col].mode()[0]
                 df[col] = df[col].fillna(mode_value)
                 print(f"Missing in {col} filled with mode = {mode_value}")
-    if not handled:
-        print("No missing values found.")
+    if missing_data_count < 1:
+        print(f"No missing data in {name}") 
+    return df
+
+
+def detect_and_handle_duplicate_data(df):
+    """
+    Detect and remove duplicate rows in the dataset.
+    - First shows how many duplicates exist
+    - Then removes them
+    """
+    # Count duplicates
+    duplicate_count = df.duplicated().sum()
+    print(f"Found {duplicate_count} duplicate rows")
+
+    if duplicate_count > 0:
+        # Remove duplicates
+        df = df.drop_duplicates()
+        print(f"Removed {duplicate_count} duplicates")
     else:
-        print("All missing values handled.")
+        print("No duplicates found")
     return df
