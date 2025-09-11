@@ -137,3 +137,69 @@ def handle_duplicates(df, name):
     else:
         print("No duplicates found")
     return df
+
+
+def clean_data_summary_till_this_stage(df, name="Dataset"):
+    """
+    Print summary of dataset (data types, missing values, duplicates).
+    Does NOT modify or return the dataframe.
+    """
+    print(f"\nSummary for {name}:")
+    df.info()  # no print() here, info() already prints
+    print("\nMissing values per column:")
+    print(df.isna().sum())
+
+    duplicates = df[df.duplicated()]
+    if not duplicates.empty:
+        print(f"\nFound {len(duplicates)} duplicate rows in {name}:")
+        print(duplicates.to_string(index=False, line_width=2000))
+    else:
+        print(f"\nNo duplicates found in {name}.")
+
+
+def convert_to_category(df, cols):
+    """
+    Convert given columns to categorical dtype.
+    """
+    for col in cols:
+        if col in df.columns:
+            df[col] = df[col].astype('category')
+            print(f"Converted {col} to category.")
+    return df
+
+
+def show_outliers(df, name="Dataset", columns=None):
+    """
+    Detect and display outliers in numeric columns using IQR method.
+    """
+    print(f"\nChecking outliers in {name}:")
+
+    # If no columns provided, auto-select numeric ones
+    if columns is None:
+        columns = df.select_dtypes(include=['number']).columns
+
+    for col in columns:
+        # Drop NA before calculation
+        series = df[col].dropna()
+
+        if series.empty:
+            print(f"Column {col} has no numeric data to check.")
+            continue
+
+        # IQR calculation
+        Q1 = series.quantile(0.25)
+        Q3 = series.quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+
+        # Find outliers
+        outliers = df[(df[col] < lower_bound) | (df[col] > upper_bound)]
+        n_outliers = len(outliers)
+
+        if n_outliers > 0:
+            print(f"{col}: {n_outliers} outliers detected.")
+            print(outliers[[col]].head())  # show first few outliers
+        else:
+            print(f"{col}: no outliers detected.")
+    print("✔️ Outlier detection complete.\n")
