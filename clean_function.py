@@ -157,6 +157,41 @@ def clean_data_summary_till_this_stage(df, name="Dataset"):
         print(f"\nNo duplicates found in {name}.")
 
 
+def handle_clean_data_format_in_columns(df, name="Dataset"):
+    """
+    Clean all text (object/string) columns:
+    - Remove leading/trailing spaces
+    - Convert to lowercase
+    - Replace multiple spaces with a single space
+    Reports per column if cleaned or not.
+    """
+    df_clean = df.copy()
+    text_cols = df_clean.select_dtypes(include=['object']).columns
+
+    print(f"\nChecking {name}...")
+
+    if len(text_cols) == 0:
+        print("No text datatype to clean")
+        return df_clean
+
+    for col in text_cols:
+        before = df_clean[col].astype(str).copy()
+        after = (
+            before
+            .str.strip()
+            .str.lower()
+            .str.replace(r"\s+", " ", regex=True)
+        )
+
+        if before.equals(after):
+            print(f"No cleaning needed for column: {col}")
+        else:
+            print(f"Cleaned column: {col}")
+            df_clean[col] = after  # update only if changed
+
+    return df_clean
+
+
 def convert_to_category(df, cols):
     """
     Convert given columns to categorical dtype.
@@ -227,7 +262,7 @@ def handle_outliers(df, name, columns=None, method="remove"):
     return df_clean
 
 
-def clean_habit(value):
+def handle_clean_habit(value):
     if pd.isna(value):
         print("NaN  -->  unknown")
         return "unknown"
@@ -257,3 +292,18 @@ def clean_habit(value):
 
     # if no change, just return it
     return text
+
+
+def normalize_numeric(df, name="Dataset"):
+    """
+    Normalize numeric columns to range [0,1].
+    """
+    numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns
+    df_norm = df.copy()
+    for col in numeric_cols:
+        min_val = df[col].min()
+        max_val = df[col].max()
+        if min_val != max_val:  # avoid divide by zero
+            df_norm[col] = (df[col] - min_val) / (max_val - min_val)
+            print(f"✔️ Normalized {col} in {name}.")
+    return df_norm
