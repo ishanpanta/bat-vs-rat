@@ -225,3 +225,35 @@ def handle_outliers(df, name, columns=None, method="remove"):
             print(f"{col}: No outliers detected.")
     print("Outlier handling complete.\n")
     return df_clean
+
+
+def clean_habit(value):
+    if pd.isna(value):
+        print("NaN  -->  unknown")
+        return "unknown"
+
+    text = str(value).strip().lower()
+
+    if any(char.isdigit() for char in text):
+        print(f"{value}  -->  invalid")
+        return "invalid"
+
+    replacements = {
+        "rat_attack": "rat",
+        "attack_rat": "rat",
+        "rat attack": "rat",
+        "bat_figiht": "bat_fight",
+        "other_bat": "other",
+        "other_bats": "other",
+        "others": "other",
+        "no food": "no_food",
+        "pick_rat": "rat_pick",
+        "rat_pick": "rat_pick",
+    }
+
+    if text in replacements:
+        print(f"{value}  -->  {replacements[text]}")
+        return replacements[text]
+
+    # if no change, just return it
+    return text
