@@ -163,43 +163,65 @@ def convert_to_category(df, cols):
     """
     for col in cols:
         if col in df.columns:
-            df[col] = df[col].astype('category')
+            df.loc[:, col] = df[col].astype("category")
             print(f"Converted {col} to category.")
     return df
 
 
-def show_outliers(df, name="Dataset", columns=None):
+def show_outlier_data(df, name="Dataset"):
     """
-    Detect and display outliers in numeric columns using IQR method.
+    Detect outliers in numeric columns using IQR.
     """
+    numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns
     print(f"\nChecking outliers in {name}:")
-
-    # If no columns provided, auto-select numeric ones
-    if columns is None:
-        columns = df.select_dtypes(include=['number']).columns
-
-    for col in columns:
-        # Drop NA before calculation
-        series = df[col].dropna()
-
-        if series.empty:
-            print(f"Column {col} has no numeric data to check.")
-            continue
-
-        # IQR calculation
-        Q1 = series.quantile(0.25)
-        Q3 = series.quantile(0.75)
+    for col in numeric_cols:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
         IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-
-        # Find outliers
-        outliers = df[(df[col] < lower_bound) | (df[col] > upper_bound)]
-        n_outliers = len(outliers)
-
-        if n_outliers > 0:
-            print(f"{col}: {n_outliers} outliers detected.")
-            print(outliers[[col]].head())  # show first few outliers
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        outliers = df[(df[col] < lower) | (df[col] > upper)]
+        if len(outliers) > 0:
+            print(f"{col}: {len(outliers)} outliers detected.")
         else:
-            print(f"{col}: no outliers detected.")
-    print("✔️ Outlier detection complete.\n")
+            print(f"{col}: No outliers detected.")
+    print("Outlier check complete.\n")
+    return df
+
+
+def handle_outliers(df, name, columns=None, method="remove"):
+    """
+    Detect and handle outliers in numeric columns using the IQR method.
+    Parameters:
+        df (DataFrame): input data
+        columns (list): list of numeric columns to check; if None, all numeric
+        columns are used method (str): "remove" to drop rows with outliers,
+        "cap" to cap values at bounds
+    Returns:
+        df_clean (DataFrame): dataframe with outliers handled
+    """
+    print(f"\nHandling outliers in {name}:")
+    if columns is None:
+        columns = df.select_dtypes(include=['int64', 'float64']).columns
+    df_clean = df.copy()
+    for col in columns:
+        Q1 = df_clean[col].quantile(0.25)
+        Q3 = df_clean[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - 1.5 * IQR
+        upper = Q3 + 1.5 * IQR
+        outliers = df_clean[(df_clean[col] < lower) | (df_clean[col] > upper)]
+        n_outliers = len(outliers)
+        if n_outliers > 0:
+            if method == "remove":  # Not going to be used in this data clean.
+                df_clean = df_clean[(df_clean[col] >= lower) & (df_clean[col]
+                                                                <= upper)]
+                print(f"Outliers removed for {col}."
+                      "New dataset has {len(df_clean)} rows.")
+            elif method == "cap":
+                df_clean[col] = df_clean[col].clip(lower, upper)
+                print(f"Outliers capped for {col} at [{lower}, {upper}].")
+        else:
+            print(f"{col}: No outliers detected.")
+    print("Outlier handling complete.\n")
+    return df_clean
