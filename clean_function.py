@@ -294,7 +294,7 @@ def handle_clean_habit(value):
     return text
 
 
-def normalize_numeric(df, name="Dataset"):
+def handle_normalize_numeric(df, name="Dataset"):
     """
     Normalize numeric columns to range [0,1].
     """
@@ -305,5 +305,5 @@ def normalize_numeric(df, name="Dataset"):
         max_val = df[col].max()
         if min_val != max_val:  # avoid divide by zero
             df_norm[col] = (df[col] - min_val) / (max_val - min_val)
-            print(f"✔️ Normalized {col} in {name}.")
+            print(f"Normalized {col} in {name}.")
     return df_norm
